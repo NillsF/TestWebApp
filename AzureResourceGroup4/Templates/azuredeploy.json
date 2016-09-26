@@ -1,0 +1,70 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "testforGithubVSTSName": {
+            "type": "string",
+          "minLength": 1,
+         "defaultValue": "nfwebappgithub"
+        },
+        "testforGithubVSTSSKU": {
+            "type": "string",
+            "allowedValues": [
+                "Free",
+                "Shared",
+                "Basic",
+                "Standard"
+            ],
+            "defaultValue": "Free"
+        },
+        "testforGithubVSTSWorkerSize": {
+            "type": "string",
+            "allowedValues": [
+                "0",
+                "1",
+                "2"
+            ],
+            "defaultValue": "0"
+        }
+    },
+    "variables": {
+        "TestforGithubVSTSWAName": "[concat('TestforGithubVSTSWA', uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('testforGithubVSTSName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-06-01",
+            "dependsOn": [ ],
+            "tags": {
+                "displayName": "testforGithubVSTS"
+            },
+            "properties": {
+                "name": "[parameters('testforGithubVSTSName')]",
+                "sku": "[parameters('testforGithubVSTSSKU')]",
+                "workerSize": "[parameters('testforGithubVSTSWorkerSize')]",
+                "numberOfWorkers": 1
+            }
+        },
+        {
+            "name": "[variables('TestforGithubVSTSWAName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-08-01",
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', parameters('testforGithubVSTSName'))]"
+            ],
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('testforGithubVSTSName'))]": "Resource",
+                "displayName": "TestforGithubVSTSWA"
+            },
+            "properties": {
+                "name": "[variables('TestforGithubVSTSWAName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('testforGithubVSTSName'))]"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
